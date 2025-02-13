@@ -1,43 +1,53 @@
-import { useState, useRef } from "react";
 
-const useAudioRecorder = () => {
-  const [isRecording, setIsRecording] = useState(false);
-  const [audioUrl, setAudioUrl] = useState<string | null>(null);
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-  const audioChunks = useRef<Blob[]>([]);
+// src/hooks/useAudioRecorder.ts
+import { useState, useCallback } from 'react';
+import { streamAudio } from '../utils/api';
 
-  const startRecording = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const mediaRecorder = new MediaRecorder(stream);
-      mediaRecorderRef.current = mediaRecorder;
+export const useAudioRecorder = () => {
+    const [isRecording, setIsRecording] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
 
-      mediaRecorder.ondataavailable = (event) => {
-        audioChunks.current.push(event.data);
-      };
+    const startRecording = useCallback(async () => {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            const recorder = new MediaRecorder(stream);
+            const chunks: Blob[] = [];
 
-      mediaRecorder.onstop = () => {
-        const audioBlob = new Blob(audioChunks.current, { type: "audio/wav" });
-        const url = URL.createObjectURL(audioBlob);
-        setAudioUrl(url);
-        audioChunks.current = [];
-      };
+            recorder.ondataavailable = async (e) => {
+                chunks.push(e.data);
+                if (recorder.state === 'inactive') {
+                    const blob = new Blob(chunks, { type: 'audio/webm' });
+                    try {
+                        await streamAudio(blob);
+                    } catch (err) {
+                        setError(err instanceof Error ? err.message : 'Failed to stream audio');
+                    }
+                }
+            };
 
-      mediaRecorder.start();
-      setIsRecording(true);
-    } catch (error) {
-      console.error("Error accessing microphone:", error);
-    }
-  };
+            recorder.start(3000); // Send chunks every 3 seconds
+            setMediaRecorder(recorder);
+            setIsRecording(true);
+            setError(null);
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Failed to start recording');
+            console.error('Error starting recording:', err);
+        }
+    }, []);
 
-  const stopRecording = () => {
-    if (mediaRecorderRef.current) {
-      mediaRecorderRef.current.stop();
-      setIsRecording(false);
-    }
-  };
+    const stopRecording = useCallback(() => {
+        if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+            mediaRecorder.stop();
+            mediaRecorder.stream.getTracks().forEach(track => track.stop());
+            setIsRecording(false);
+        }
+    }, [mediaRecorder]);
 
-  return { isRecording, startRecording, stopRecording, audioUrl };
+    return {
+        isRecording,
+        error,
+        startRecording,
+        stopRecording
+    };
 };
-
-export default useAudioRecorder;
