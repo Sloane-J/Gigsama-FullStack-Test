@@ -27,3 +27,17 @@ interface BibleVerse {
   
   export default BibleVerseCard;
   
+  import { useEffect, useState } from "react";
+import { fetchData } from "../utils/api";
+
+const BibleVerseCard = () => {
+    const [verse, setVerse] = useState("");
+
+    useEffect(() => {
+        fetchData("get-verse").then((data) => setVerse(data.verse));
+    }, []);
+
+    return <div className="p-4 bg-gray-100 rounded-md">{verse}</div>;
+};
+
+export default BibleVerseCard;
