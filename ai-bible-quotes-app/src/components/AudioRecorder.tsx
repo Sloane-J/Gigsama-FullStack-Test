@@ -1,4 +1,3 @@
-//microphone button component
 import { useState } from "react";
 import useAudioRecorder from "../hooks/useAudioRecorder";
 import BibleVerseCard from "./BibleVerseCard";
