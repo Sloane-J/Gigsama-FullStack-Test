@@ -7,8 +7,8 @@ interface BibleVerse {
 }
 
 interface BibleVerseCardProps {
-    verses?: BibleVerse[];  // Make optional since we might fetch verses internally
-    autoFetch?: boolean;    // Control whether component fetches its own verses
+    verses?: BibleVerse[];
+    autoFetch?: boolean;
 }
 
 const BibleVerseCard = ({ verses: propVerses, autoFetch = false }: BibleVerseCardProps) => {
@@ -16,7 +16,6 @@ const BibleVerseCard = ({ verses: propVerses, autoFetch = false }: BibleVerseCar
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    // Use prop verses if provided, otherwise use fetched verses
     const verses = propVerses || fetchedVerses;
 
     useEffect(() => {
@@ -38,31 +37,24 @@ const BibleVerseCard = ({ verses: propVerses, autoFetch = false }: BibleVerseCar
         }
     }, [autoFetch, propVerses]);
 
-    if (isLoading) {
-        return <div className="mt-4 bg-white p-4 rounded-lg shadow-md">
-            <p className="text-gray-500">Loading verses...</p>
-        </div>;
-    }
-
-    if (error) {
-        return <div className="mt-4 bg-white p-4 rounded-lg shadow-md">
-            <p className="text-red-500">Error: {error}</p>
-        </div>;
-    }
-
     return (
-        <div className="mt-4 bg-white p-4 rounded-lg shadow-md">
-            <h2 className="text-lg font-bold mb-2">Detected Bible Verses</h2>
-            {verses.length > 0 ? (
-                verses.map((verse, index) => (
-                    <div key={`${verse.reference}-${index}`} className="mb-2 p-2 bg-gray-100 rounded-md">
-                        <p className="font-bold">{verse.reference}</p>
-                        <p className="text-gray-700">{verse.text}</p>
-                    </div>
-                ))
-            ) : (
-                <p className="text-gray-500">No verses detected yet.</p>
-            )}
+        <div className="flex justify-center items-center mt-6">
+            <div className="w-full max-w-md bg-white p-6 rounded-2xl shadow-lg text-center">
+                {isLoading ? (
+                    <p className="text-gray-500">Processing...</p>
+                ) : error ? (
+                    <p className="text-red-500">Error: {error}</p>
+                ) : verses.length > 0 ? (
+                    verses.map((verse, index) => (
+                        <div key={`${verse.reference}-${index}`} className="mb-4">
+                            <h2 className="text-lg font-bold text-gray-900">{verse.reference}</h2>
+                            <p className="text-gray-700 mt-2">{verse.text}</p>
+                        </div>
+                    ))
+                ) : (
+                    <p className="text-gray-500">No detected Bible verses.</p>
+                )}
+            </div>
         </div>
     );
 };
