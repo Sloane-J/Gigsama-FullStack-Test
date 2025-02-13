@@ -1,30 +1,28 @@
 ---
-// Import React components
-import AudioRecorder from "../components/AudioRecorder";
-import TranscriptDisplay from "../components/TranscriptDisplay";
-import BibleVerseCard from "../components/BibleVerseCard";
+import AudioRecorder from "../components/AudioRecorder.tsx";
+import TranscriptDisplay from "../components/TranscriptDisplay.tsx";
+import BibleVerseCard from "../components/BibleVerseCard.tsx";
 import Layout from "../layouts/Layout.astro";
 ---
 
 <Layout>
 	<div class="container mx-auto px-4">
 	  <h1 class="text-center text-2xl font-bold my-6">VerseCatch</h1>
-  
+
 	  <!-- Audio Recorder Button -->
 	  <section class="flex justify-center gap-4 mb-6">
-		<AudioRecorder />
+		<AudioRecorder client:load />  <!-- Load React component in Astro -->
 	  </section>
-  
+
 	  <!-- Transcription Section -->
 	  <section class="bg-white rounded-xl p-4 shadow-md mb-6">
-		<TranscriptDisplay />
+		<TranscriptDisplay client:load />
 	  </section>
-  
+
 	  <!-- Bible Verse Display -->
 	  <section class="space-y-4">
-		<BibleVerseCard verse="John 3:16" version="KJV" text="For God so loved the world, that he gave his only begotten Son..." />
-		<BibleVerseCard verse="Matthew 11:28" version="NIV" text="Come to me, all you who are weary and burdened, and I will give you rest." />
+		<BibleVerseCard client:load verse="John 3:16" version="KJV" text="For God so loved the world, that he gave his only begotten Son..." />
+		<BibleVerseCard client:load verse="Matthew 11:28" version="NIV" text="Come to me, all you who are weary and burdened, and I will give you rest." />
 	  </section>
 	</div>
-  </Layout>
-  
+</Layout>
