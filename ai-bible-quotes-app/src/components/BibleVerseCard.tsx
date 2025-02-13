@@ -4,14 +4,13 @@ interface BibleVerse {
   }
   
   interface BibleVerseCardProps {
-    verses: BibleVerse[]; // Array of detected verses
+    verses?: BibleVerse[]; // Allow optional `verses`
   }
   
-  const BibleVerseCard = ({ verses }: BibleVerseCardProps) => {
+  const BibleVerseCard = ({ verses = [] }: BibleVerseCardProps) => {
     return (
       <div className="mt-4 bg-white p-4 rounded-lg shadow-md">
         <h2 className="text-lg font-bold mb-2">Detected Bible Verses</h2>
-  
         {verses.length > 0 ? (
           verses.map((verse, index) => (
             <div key={index} className="mb-2 p-2 bg-gray-100 rounded-md">
